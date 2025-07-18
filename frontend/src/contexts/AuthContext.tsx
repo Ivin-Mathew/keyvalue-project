@@ -31,28 +31,38 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // Check if user is logged in on app start
     const initializeAuth = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          apiClient.setToken(token);
-          const response = await apiClient.getProfile();
-          if (response.success && response.data) {
-            setUser(response.data);
-          } else {
-            // Invalid token, clear it
-            localStorage.removeItem('token');
-            apiClient.clearToken();
+        // Only access localStorage on client side
+        if (typeof window !== 'undefined') {
+          const token = localStorage.getItem('token');
+          if (token) {
+            apiClient.setToken(token);
+            const response = await apiClient.getProfile();
+            if (response.success && response.data) {
+              setUser(response.data);
+            } else {
+              // Invalid token, clear it
+              localStorage.removeItem('token');
+              apiClient.clearToken();
+            }
           }
         }
       } catch (error) {
         console.error('Failed to initialize auth:', error);
         // Clear invalid token
-        localStorage.removeItem('token');
-        apiClient.clearToken();
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          apiClient.clearToken();
+        }
       } finally {
         setLoading(false);
       }
@@ -68,7 +78,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { user, token } = response.data;
         setUser(user);
         apiClient.setToken(token);
-        localStorage.setItem('token', token);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('token', token);
+        }
       } else {
         throw new Error(response.error || 'Login failed');
       }
@@ -85,7 +97,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { user, token } = response.data;
         setUser(user);
         apiClient.setToken(token);
-        localStorage.setItem('token', token);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('token', token);
+        }
       } else {
         throw new Error(response.error || 'Registration failed');
       }
@@ -98,7 +112,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     apiClient.clearToken();
-    localStorage.removeItem('token');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+    }
   };
 
   const value: AuthContextType = {
@@ -110,6 +126,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
   };
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <AuthContext.Provider value={{ ...value, loading: true }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  }
 
   return (
     <AuthContext.Provider value={value}>

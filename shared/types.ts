@@ -8,6 +8,14 @@ export interface User {
   createdAt: Date;
 }
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  role: 'user' | 'admin';
+  createdAt: Date;
+}
+
 export interface FoodItem {
   id: string;
   name: string;

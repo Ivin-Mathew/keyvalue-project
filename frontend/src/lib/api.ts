@@ -6,7 +6,8 @@ import {
   FoodItem,
   Order,
   CreateOrderRequest,
-  UpdateFoodItemRequest
+  UpdateFoodItemRequest,
+  UserProfile
 } from '../../../shared/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -43,13 +44,13 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
     if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
+      headers['Authorization'] = `Bearer ${this.token}`;
     }
 
     try {
@@ -85,9 +86,8 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
-
-  async getProfile(): Promise<ApiResponse<any>> {
-    return this.request<any>('/api/auth/profile');
+  async getProfile(): Promise<ApiResponse<UserProfile>> {
+    return this.request<UserProfile>('/api/auth/profile');
   }
 
   // Food items endpoints
@@ -164,8 +164,8 @@ class ApiClient {
   }
 
   // Health check
-  async healthCheck(): Promise<ApiResponse<any>> {
-    return this.request<any>('/health');
+  async healthCheck(): Promise<ApiResponse<Record<string, unknown>>> {
+    return this.request<Record<string, unknown>>('/health');
   }
 }
 

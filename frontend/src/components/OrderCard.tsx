@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Order } from '../../../shared/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/Badge';
 import QRCodeDisplay from '@/components/QRCodeDisplay';
 import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils';
 import { 
@@ -160,7 +160,6 @@ const OrderCard: React.FC<OrderCardProps> = ({
             <Button
               onClick={() => handleStatusUpdate('fulfilled')}
               disabled={isUpdating}
-              loading={isUpdating}
               size="sm"
               className="flex-1"
             >

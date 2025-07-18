@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { FoodItem } from '../../../shared/types';
 import { Card, CardContent, CardFooter } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/Badge';
 import { formatCurrency, getCategoryColor, capitalizeFirst } from '@/lib/utils';
 import { Minus, Plus, ShoppingCart } from 'lucide-react';
 

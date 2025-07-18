@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Download, Copy, Check } from 'lucide-react';
@@ -37,13 +37,26 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
   };
 
   const handleDownload = () => {
-    const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
-    if (canvas) {
-      const url = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `qr-code-${Date.now()}.png`;
-      link.href = url;
-      link.click();
+    const svg = document.getElementById('qr-code-svg') as unknown as SVGElement;
+    if (svg) {
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      canvas.width = size;
+      canvas.height = size;
+
+      img.onload = () => {
+        ctx?.drawImage(img, 0, 0);
+        const url = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `qr-code-${Date.now()}.png`;
+        link.href = url;
+        link.click();
+      };
+
+      img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
     }
   };
 
@@ -55,13 +68,12 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
       
       <CardContent className="flex flex-col items-center space-y-4">
         <div className="p-4 bg-white rounded-lg border-2 border-gray-200">
-          <QRCode
-            id="qr-code-canvas"
+          <QRCodeSVG
+            id="qr-code-svg"
             value={value}
             size={size}
             level="M"
-            includeMargin={true}
-            renderAs="canvas"
+            marginSize={4}
           />
         </div>
 
