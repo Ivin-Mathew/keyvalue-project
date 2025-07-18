@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { collections } from '../services/firebase';
-import { User } from '../../../shared/types';
+import { User } from "../types/types"
 
 // Extend Request interface to include user
 declare global {

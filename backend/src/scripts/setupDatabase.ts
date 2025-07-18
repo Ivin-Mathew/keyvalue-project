@@ -38,7 +38,7 @@ const setupDatabase = async () => {
         category: 'lunch',
         totalCount: 50,
         remainingCount: 50,
-        imageUrl: 'https://images.unsplash.com/photo-1563379091339-03246963d96c?w=400',
+        imageUrl: '/images/placeholder-food.svg',
         isAvailable: true
       },
       {
@@ -48,7 +48,7 @@ const setupDatabase = async () => {
         category: 'snacks',
         totalCount: 30,
         remainingCount: 30,
-        imageUrl: 'https://images.unsplash.com/photo-1553909489-cd47e0ef937f?w=400',
+        imageUrl: '/images/placeholder-food.svg',
         isAvailable: true
       },
       {
@@ -58,7 +58,7 @@ const setupDatabase = async () => {
         category: 'beverages',
         totalCount: 100,
         remainingCount: 100,
-        imageUrl: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400',
+        imageUrl: '/images/placeholder-food.svg',
         isAvailable: true
       },
       {
@@ -68,7 +68,7 @@ const setupDatabase = async () => {
         category: 'lunch',
         totalCount: 25,
         remainingCount: 25,
-        imageUrl: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400',
+        imageUrl: '/images/placeholder-food.svg',
         isAvailable: true
       },
       {
@@ -78,7 +78,7 @@ const setupDatabase = async () => {
         category: 'snacks',
         totalCount: 40,
         remainingCount: 40,
-        imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400',
+        imageUrl: '/images/placeholder-food.svg',
         isAvailable: true
       },
       {
@@ -88,7 +88,7 @@ const setupDatabase = async () => {
         category: 'beverages',
         totalCount: 60,
         remainingCount: 60,
-        imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400',
+        imageUrl: '/images/placeholder-food.svg',
         isAvailable: true
       },
       {
@@ -98,7 +98,7 @@ const setupDatabase = async () => {
         category: 'breakfast',
         totalCount: 20,
         remainingCount: 20,
-        imageUrl: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400',
+        imageUrl: '/images/placeholder-food.svg',
         isAvailable: true
       },
       {
@@ -108,7 +108,7 @@ const setupDatabase = async () => {
         category: 'desserts',
         totalCount: 35,
         remainingCount: 35,
-        imageUrl: 'https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400',
+        imageUrl: '/images/placeholder-food.svg',
         isAvailable: true
       }
     ];

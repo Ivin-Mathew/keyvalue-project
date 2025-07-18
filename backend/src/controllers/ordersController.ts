@@ -19,14 +19,14 @@ const generateQRCodeData = (orderId: string) => {
 export const getAllOrders = async (req: Request, res: Response) => {
   try {
     const { status, userId } = req.query;
-    
+
     let query = collections.orders().orderBy('createdAt', 'desc');
-    
+
     // Filter by status if provided
     if (status && typeof status === 'string') {
       query = query.where('status', '==', status);
     }
-    
+
     // Filter by userId if provided
     if (userId && typeof userId === 'string') {
       query = query.where('userId', '==', userId);
@@ -122,11 +122,13 @@ export const createOrder = async (req: Request, res: Response) => {
 
     // Get food items from database
     const foodItemIds = items.map(item => item.foodItemId);
-    const foodItemsSnapshot = await collections.foodItems()
-      .where('id', 'in', foodItemIds)
-      .get();
+    const foodItemsPromises = foodItemIds.map(id => collections.foodItems().doc(id).get());
+    const foodItemsSnapshots = await Promise.all(foodItemsPromises);
 
-    if (foodItemsSnapshot.empty || foodItemsSnapshot.docs.length !== foodItemIds.length) {
+    // Check if all food items exist
+    const missingItems = foodItemsSnapshots.filter(snapshot => !snapshot.exists);
+
+    if (missingItems.length > 0) {
       return res.status(400).json({
         success: false,
         error: 'One or more food items not found'
@@ -135,14 +137,16 @@ export const createOrder = async (req: Request, res: Response) => {
 
     // Map food items by ID for easy access
     const foodItemsMap = new Map();
-    foodItemsSnapshot.docs.forEach(doc => {
-      const data = doc.data();
-      foodItemsMap.set(doc.id, {
-        id: doc.id,
-        name: data.name,
-        price: data.price,
-        remainingCount: data.remainingCount
-      });
+    foodItemsSnapshots.forEach(snapshot => {
+      if (snapshot.exists) {
+        const data = snapshot.data();
+        foodItemsMap.set(snapshot.id, {
+          id: snapshot.id,
+          name: data?.name,
+          price: data?.price,
+          remainingCount: data?.remainingCount
+        });
+      }
     });
 
     // Check if all items are available in sufficient quantity

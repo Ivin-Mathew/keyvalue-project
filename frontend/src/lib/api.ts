@@ -133,7 +133,7 @@ class ApiClient {
     const searchParams = new URLSearchParams();
     if (params?.status) searchParams.append('status', params.status);
     if (params?.userId) searchParams.append('userId', params.userId);
-    
+
     const query = searchParams.toString();
     return this.request<Order[]>(`/api/orders${query ? `?${query}` : ''}`);
   }

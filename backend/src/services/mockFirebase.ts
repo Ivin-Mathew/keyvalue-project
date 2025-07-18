@@ -169,7 +169,7 @@ export const initializeMockFirebase = () => {
       category: 'lunch',
       totalCount: 50,
       remainingCount: 50,
-      imageUrl: 'https://images.unsplash.com/photo-1563379091339-03246963d96c?w=400',
+      imageUrl: '/images/placeholder-food.svg',
       isAvailable: true,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -182,7 +182,7 @@ export const initializeMockFirebase = () => {
       category: 'snacks',
       totalCount: 30,
       remainingCount: 30,
-      imageUrl: 'https://images.unsplash.com/photo-1553909489-cd47e0ef937f?w=400',
+      imageUrl: '/images/placeholder-food.svg',
       isAvailable: true,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -195,7 +195,7 @@ export const initializeMockFirebase = () => {
       category: 'beverages',
       totalCount: 100,
       remainingCount: 100,
-      imageUrl: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400',
+      imageUrl: '/images/placeholder-food.svg',
       isAvailable: true,
       createdAt: new Date(),
       updatedAt: new Date()
