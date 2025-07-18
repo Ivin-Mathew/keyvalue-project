@@ -73,7 +73,7 @@ const Navbar: React.FC = () => {
 
                 {/* Cart Icon */}
                 <Link
-                  href="/menu"
+                  href="/cart"
                   className="relative text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
                 >
                   <ShoppingCart className="w-4 h-4" />
@@ -165,12 +165,28 @@ const Navbar: React.FC = () => {
                     Menu
                   </Link>
                   
-                  <Link 
-                    href="/orders" 
+                  <Link
+                    href="/orders"
                     className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
                     onClick={closeMobileMenu}
                   >
                     My Orders
+                  </Link>
+
+                  <Link
+                    href="/cart"
+                    className="flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
+                    onClick={closeMobileMenu}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <ShoppingCart className="w-4 h-4" />
+                      <span>Cart</span>
+                    </div>
+                    {getTotalItems() > 0 && (
+                      <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center p-0 text-xs">
+                        {getTotalItems()}
+                      </Badge>
+                    )}
                   </Link>
 
                   {isAdmin && (

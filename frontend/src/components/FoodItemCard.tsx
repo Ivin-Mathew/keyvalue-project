@@ -75,9 +75,8 @@ const FoodItemCard: React.FC<FoodItemCardProps> = ({
         
         {/* Category Badge */}
         <div className="absolute top-2 left-2">
-          <Badge 
+          <Badge
             className={getCategoryColor(foodItem.category)}
-            size="sm"
           >
             {capitalizeFirst(foodItem.category)}
           </Badge>
@@ -86,15 +85,15 @@ const FoodItemCard: React.FC<FoodItemCardProps> = ({
         {/* Stock Status Badge */}
         <div className="absolute top-2 right-2">
           {isOutOfStock ? (
-            <Badge variant="destructive" size="sm">
+            <Badge variant="destructive">
               Out of Stock
             </Badge>
           ) : isLowStock ? (
-            <Badge variant="warning" size="sm">
+            <Badge variant="secondary">
               Low Stock ({foodItem.remainingCount})
             </Badge>
           ) : (
-            <Badge variant="success" size="sm">
+            <Badge variant="default">
               Available ({foodItem.remainingCount})
             </Badge>
           )}
@@ -152,9 +151,8 @@ const FoodItemCard: React.FC<FoodItemCardProps> = ({
           <Button
             onClick={handleAddToCart}
             disabled={isOutOfStock || isAdding}
-            loading={isAdding}
             className="w-full"
-            variant={isOutOfStock ? 'secondary' : 'primary'}
+            variant={isOutOfStock ? 'secondary' : 'default'}
           >
             {isOutOfStock ? (
               'Out of Stock'

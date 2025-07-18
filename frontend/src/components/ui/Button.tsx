@@ -46,11 +46,20 @@ function Button({
     asChild?: boolean
   }) {
   const Comp = asChild ? Slot : "button"
+  const mergedClassName = cn(buttonVariants({ variant, size, className }))
 
+  if (asChild) {
+    const { children, ...rest } = props
+    return (
+      <Slot className={mergedClassName} {...rest}>
+        {children}
+      </Slot>
+    )
+  }
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={mergedClassName}
       {...props}
     />
   )

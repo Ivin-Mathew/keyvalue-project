@@ -8,6 +8,7 @@ import { apiClient } from '@/lib/api';
 import { socketManager } from '@/lib/socket';
 import FoodItemCard from '@/components/FoodItemCard';
 import { Button } from '@/components/ui/Button';
+import { formatCurrency } from '@/lib/utils';
 import { Input } from '@/components/ui/Input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/Badge';
@@ -15,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Search, ShoppingCart, Filter, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 export default function MenuPage() {
   const { isAuthenticated } = useAuth();
@@ -71,8 +73,12 @@ export default function MenuPage() {
       } else {
         setError('Failed to load food items');
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load food items');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to load food items');
+      }
     } finally {
       setLoading(false);
     }
@@ -270,6 +276,26 @@ export default function MenuPage() {
           </div>
         )}
       </div>
+
+      {/* Floating Cart Button */}
+      {isAuthenticated && getTotalItems() > 0 && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Link href="/cart">
+            <Button
+              size="lg"
+              className="rounded-full shadow-lg hover:shadow-xl transition-shadow bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <ShoppingCart className="w-5 h-5 mr-2" />
+              <span className="font-medium">
+                {getTotalItems()} {getTotalItems() === 1 ? 'item' : 'items'}
+              </span>
+              <Badge variant="secondary" className="ml-2 bg-white text-blue-600">
+                {formatCurrency(getTotalAmount())}
+              </Badge>
+            </Button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

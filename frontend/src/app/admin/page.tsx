@@ -7,6 +7,7 @@ import { apiClient } from '@/lib/api';
 import { socketManager } from '@/lib/socket';
 import OrderCard from '@/components/OrderCard';
 import QRCodeScanner from '@/components/QRCodeScanner';
+import FoodItemManager from '@/components/FoodItemManager';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -386,32 +387,10 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="inventory">
-            <Card>
-              <CardHeader>
-                <CardTitle>Food Inventory</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {foodItems.map(item => (
-                    <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <h3 className="font-medium">{item.name}</h3>
-                        <p className="text-sm text-gray-600">{item.category}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">₹{item.price}</p>
-                        <Badge 
-                          variant={item.remainingCount === 0 ? "destructive" : 
-                                  item.remainingCount <= 5 ? "secondary" : "default"}
-                        >
-                          {item.remainingCount} remaining
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <FoodItemManager
+              foodItems={foodItems}
+              onFoodItemsChange={setFoodItems}
+            />
           </TabsContent>
 
           <TabsContent value="scanner">
