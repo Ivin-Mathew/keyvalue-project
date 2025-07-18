@@ -38,6 +38,10 @@ class ApiClient {
     }
   }
 
+  getToken() {
+    return this.token;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -54,12 +58,22 @@ class ApiClient {
     }
 
     try {
+      console.log('🌐 Making API request:', {
+        url,
+        method: options.method || 'GET',
+        hasAuth: !!headers['Authorization'],
+        body: options.body
+      });
+
       const response = await fetch(url, {
         ...options,
         headers,
       });
 
+      console.log('📡 API response status:', response.status, response.statusText);
+
       const data = await response.json();
+      console.log('📦 API response data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || `HTTP error! status: ${response.status}`);
@@ -67,7 +81,11 @@ class ApiClient {
 
       return data;
     } catch (error) {
-      console.error('API request failed:', error);
+      console.error('💥 API request failed:', {
+        url,
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined
+      });
       throw error;
     }
   }

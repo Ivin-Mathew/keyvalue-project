@@ -149,6 +149,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const checkout = async () => {
+    console.log('🔐 Checkout initiated - Auth status:', isAuthenticated);
+    console.log('👤 Current user:', user);
+    console.log('🔑 Token in localStorage:', localStorage.getItem('token'));
+    console.log('🔑 Token in apiClient:', apiClient.getToken());
+
     if (!isAuthenticated) {
       toast.error('Please login to place an order');
       return;
@@ -157,6 +162,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     if (items.length === 0) {
       toast.error('Your cart is empty');
       return;
+    }
+
+    // Double-check token is set
+    const token = localStorage.getItem('token');
+    if (token && !apiClient.getToken()) {
+      console.log('🔧 Re-setting token in apiClient');
+      apiClient.setToken(token);
     }
 
     setIsCheckingOut(true);
@@ -169,21 +181,33 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         }))
       };
 
+      console.log('🛒 Checkout request:', orderRequest);
+      console.log('🔑 API token available:', !!apiClient.getToken());
+      console.log('🌐 API base URL:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000');
+
       const response = await apiClient.createOrder(orderRequest);
-      
+
+      console.log('📦 Checkout response:', response);
+
       if (response.success && response.data) {
         clearCart();
         toast.success('Order placed successfully!');
-        
+
         // Redirect to orders page to show the new order
         if (typeof window !== 'undefined') {
           window.location.href = '/orders';
         }
       } else {
+        console.error('❌ Order creation failed:', response.error);
         throw new Error(response.error || 'Failed to place order');
       }
     } catch (error: any) {
-      console.error('Checkout error:', error);
+      console.error('💥 Checkout error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        cause: error.cause
+      });
       toast.error(error.message || 'Failed to place order');
     } finally {
       setIsCheckingOut(false);
