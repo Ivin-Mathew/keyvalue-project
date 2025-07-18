@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own data
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // Only allow creation during registration (handled by backend)
+      allow create: if false;
+      // Users can update their own profile (limited fields)
+      allow update: if request.auth != null && 
+                   request.auth.uid == userId &&
+                   onlyUpdatingFields(['name']);
+      // No deletion allowed
+      allow delete: if false;
+    }
+
+    // Food items collection
+    match /foodItems/{itemId} {
+      // Anyone can read food items (for browsing)
+      allow read: if true;
+      // Only admins can create, update, or delete food items (handled by backend)
+      allow create, update, delete: if false;
+    }
+
+    // Orders collection
+    match /orders/{orderId} {
+      // Users can read their own orders
+      allow read: if request.auth != null && 
+                 (request.auth.uid == resource.data.userId || 
+                  getUserRole(request.auth.uid) == 'admin');
+      // Users can create orders (handled by backend with validation)
+      allow create: if false;
+      // Only admins can update orders (handled by backend)
+      allow update: if false;
+      // No deletion allowed
+      allow delete: if false;
+    }
+
+    // Helper function to get user role
+    function getUserRole(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.role;
+    }
+
+    // Helper function to check if only specific fields are being updated
+    function onlyUpdatingFields(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+  }
+}
