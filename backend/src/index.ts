@@ -4,7 +4,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
 
 // Load environment variables
 dotenv.config();
@@ -20,21 +19,11 @@ import { notFound } from './middleware/notFound';
 
 // Import services
 import { initializeFirebase } from './services/firebase';
-import { setupSocketHandlers } from './services/socket';
 
 const app = express();
 const server = createServer(app);
 
-// Initialize Socket.io
-const io = new Server(server, {
-  cors: {
-    origin: process.env.SOCKET_CORS_ORIGIN || "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
-});
 
-// Make io available throughout the app
-app.set('io', io);
 
 // Initialize Firebase
 initializeFirebase();
@@ -63,8 +52,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/food-items', foodItemRoutes);
 app.use('/api/orders', orderRoutes);
 
-// Setup Socket.io handlers
-setupSocketHandlers(io);
+
 
 // Error handling middleware
 app.use(notFound);

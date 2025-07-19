@@ -21,7 +21,6 @@ A comprehensive full-stack web application for managing college canteen operatio
 - **Performance Analytics**: Detailed insights and reporting
 
 ### 🔧 Technical Features
-- **Real-time Communication**: Socket.io for instant updates
 - **Secure Authentication**: JWT-based user authentication
 - **Modern UI Components**: shadcn/ui for consistent design
 - **Type Safety**: Full TypeScript implementation
@@ -36,7 +35,7 @@ A comprehensive full-stack web application for managing college canteen operatio
 - **Styling**: Tailwind CSS + shadcn/ui components
 - **State Management**: React Context API
 - **QR Code**: qrcode.react + @zxing/library
-- **Real-time**: Socket.io client
+
 - **Icons**: Lucide React
 - **Notifications**: Sonner (toast notifications)
 
@@ -249,13 +248,7 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
 }
 ```
 
-## 🔄 Real-time Features
 
-The application uses Socket.io for real-time communication:
-
-- **Food Count Updates**: When orders are placed, food counts are updated in real-time
-- **Order Notifications**: New orders appear instantly on the management dashboard
-- **Status Updates**: Order status changes are broadcast to relevant clients
 
 ## 📱 QR Code System
 

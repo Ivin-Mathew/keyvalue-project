@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Order, FoodItem } from '../../../../shared/types';
 import { apiClient } from '@/lib/api';
-import { socketManager } from '@/lib/socket';
+
 import OrderCard from '@/components/OrderCard';
 import QRCodeScanner from '@/components/QRCodeScanner';
 import FoodItemManager from '@/components/FoodItemManager';
@@ -42,30 +42,14 @@ export default function AdminDashboard() {
 
     fetchOrders();
     fetchFoodItems();
-    
-    // Connect to socket for real-time updates
-    const socket = socketManager.connect();
-    socketManager.joinRoom('management');
-    
-    // Listen for new orders
-    socketManager.onNewOrder((newOrder) => {
-      setOrders(prev => [newOrder, ...prev]);
-      toast.success(`New order received from ${newOrder.userName}!`);
-    });
 
-    // Listen for food count updates
-    socketManager.onFoodCountUpdate((data) => {
-      setFoodItems(prev => prev.map(item => 
-        item.id === data.foodItemId 
-          ? { ...item, remainingCount: data.remainingCount, isAvailable: data.remainingCount > 0 }
-          : item
-      ));
-    });
+    // Set up periodic refresh for orders and food items
+    const interval = setInterval(() => {
+      fetchOrders();
+      fetchFoodItems();
+    }, 30000); // Refresh every 30 seconds
 
-    return () => {
-      socketManager.leaveRoom('management');
-      socketManager.disconnect();
-    };
+    return () => clearInterval(interval);
   }, [isAdmin]);
 
   const fetchOrders = async () => {
@@ -192,9 +176,26 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage orders, food items, and monitor operations</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+            <p className="text-gray-600">Manage orders, food items, and monitor operations</p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                fetchOrders();
+                fetchFoodItems();
+                toast.success('Data refreshed');
+              }}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {error && (

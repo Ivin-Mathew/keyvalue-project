@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Order } from '../../../../shared/types';
 import { apiClient } from '@/lib/api';
-import { socketManager } from '@/lib/socket';
+
 import OrderCard from '@/components/OrderCard';
 import { Button } from '@/components/ui/Button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -28,23 +28,13 @@ export default function OrdersPage() {
     }
 
     fetchOrders();
-    
-    // Connect to socket for real-time updates
-    const socket = socketManager.connect();
-    
-    // Listen for order fulfillment updates
-    socketManager.onOrderFulfilled((orderId) => {
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, status: 'fulfilled', fulfilledAt: new Date() }
-          : order
-      ));
-      toast.success('Your order has been fulfilled!');
-    });
 
-    return () => {
-      socketManager.disconnect();
-    };
+    // Set up periodic refresh for orders to get status updates
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
   }, [isAuthenticated]);
 
   useEffect(() => {
@@ -130,9 +120,25 @@ export default function OrdersPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Orders</h1>
-          <p className="text-gray-600">Track and manage your food orders</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Orders</h1>
+            <p className="text-gray-600">Track and manage your food orders</p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                fetchOrders();
+                toast.success('Orders refreshed');
+              }}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {error && (

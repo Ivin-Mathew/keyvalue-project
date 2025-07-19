@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { collections, firestoreHelpers } from '../services/firebase';
-import { socketEmitters } from '../services/socket';
 import { Order, OrderItem, CreateOrderRequest } from '../../../shared/types';
 
 // Helper function to generate QR code data
@@ -204,30 +203,44 @@ export const createOrder = async (req: Request, res: Response) => {
 
     // Use a transaction to update food item counts and create order
     await firestoreHelpers.runTransaction(async transaction => {
-      // Update food item counts
-      for (const item of items) {
-        const foodItemRef = collections.foodItems().doc(item.foodItemId);
-        const foodItemDoc = await transaction.get(foodItemRef);
-        
+      // First, do ALL reads
+      const foodItemRefs = items.map(item => collections.foodItems().doc(item.foodItemId));
+      const foodItemDocs = await Promise.all(
+        foodItemRefs.map(ref => transaction.get(ref))
+      );
+
+      // Validate all food items exist and have sufficient quantity
+      const updatesData = [];
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const foodItemDoc = foodItemDocs[i];
+        const foodItemRef = foodItemRefs[i];
+
         if (!foodItemDoc.exists) {
           throw new Error(`Food item ${item.foodItemId} not found`);
         }
-        
+
         const foodItemData = foodItemDoc.data()!;
         const newRemainingCount = foodItemData.remainingCount - item.quantity;
-        
+
         if (newRemainingCount < 0) {
           throw new Error(`Not enough ${foodItemData.name} available`);
         }
-        
-        transaction.update(foodItemRef, {
-          remainingCount: newRemainingCount,
-          isAvailable: newRemainingCount > 0,
+
+        updatesData.push({
+          ref: foodItemRef,
+          newRemainingCount,
+          foodItemId: item.foodItemId
+        });
+      }
+
+      // Then, do ALL writes
+      for (const updateData of updatesData) {
+        transaction.update(updateData.ref, {
+          remainingCount: updateData.newRemainingCount,
+          isAvailable: updateData.newRemainingCount > 0,
           updatedAt: firestoreHelpers.now()
         });
-
-        // Emit food count update
-        socketEmitters.emitFoodCountUpdate(item.foodItemId, newRemainingCount);
       }
 
       // Create order
@@ -242,8 +255,7 @@ export const createOrder = async (req: Request, res: Response) => {
       fulfilledAt: undefined
     };
 
-    // Emit new order event
-    socketEmitters.emitNewOrder(order);
+
 
     res.status(201).json({
       success: true,
@@ -322,8 +334,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
               updatedAt: firestoreHelpers.now()
             });
 
-            // Emit food count update
-            socketEmitters.emitFoodCountUpdate(item.foodItemId, newRemainingCount);
+
           }
         }
       });
@@ -346,10 +357,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
       fulfilledAt: updatedData.fulfilledAt ? updatedData.fulfilledAt.toDate() : undefined
     };
 
-    // Emit order fulfilled event
-    if (status === 'fulfilled') {
-      socketEmitters.emitOrderFulfilled(id);
-    }
+
 
     res.status(200).json({
       success: true,
@@ -437,8 +445,7 @@ export const verifyQRCode = async (req: Request, res: Response) => {
       fulfilledAt: now
     });
 
-    // Emit order fulfilled event
-    socketEmitters.emitOrderFulfilled(orderId);
+
 
     const order: Order = {
       id: doc.id,

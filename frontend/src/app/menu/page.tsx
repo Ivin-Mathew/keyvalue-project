@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { FoodItem } from '../../../../shared/types';
 import { apiClient } from '@/lib/api';
-import { socketManager } from '@/lib/socket';
+
 import FoodItemCard from '@/components/FoodItemCard';
 import { Button } from '@/components/ui/Button';
 import { formatCurrency } from '@/lib/utils';
@@ -35,29 +35,13 @@ export default function MenuPage() {
   useEffect(() => {
     fetchFoodItems();
     fetchCategories();
-    
-    // Connect to socket for real-time updates
-    const socket = socketManager.connect();
-    
-    // Listen for food count updates
-    socketManager.onFoodCountUpdate((data) => {
-      setFoodItems(prev => prev.map(item => 
-        item.id === data.foodItemId 
-          ? { ...item, remainingCount: data.remainingCount, isAvailable: data.remainingCount > 0 }
-          : item
-      ));
-    });
 
-    // Listen for food item updates
-    socketManager.onFoodItemUpdate((updatedItem) => {
-      setFoodItems(prev => prev.map(item => 
-        item.id === updatedItem.id ? updatedItem : item
-      ));
-    });
+    // Set up periodic refresh for food items to get updated counts
+    const interval = setInterval(() => {
+      fetchFoodItems();
+    }, 30000); // Refresh every 30 seconds
 
-    return () => {
-      socketManager.disconnect();
-    };
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -138,9 +122,25 @@ export default function MenuPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Our Menu</h1>
-          <p className="text-gray-600">Discover and order your favorite food items</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Our Menu</h1>
+            <p className="text-gray-600">Discover and order your favorite food items</p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                fetchFoodItems();
+                toast.success('Menu refreshed');
+              }}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {error && (

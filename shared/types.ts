@@ -85,18 +85,7 @@ export interface UpdateFoodItemRequest {
   isAvailable?: boolean;
 }
 
-// Socket.io event types
-export interface SocketEvents {
-  // Client to Server
-  'join-room': (room: string) => void;
-  'leave-room': (room: string) => void;
-  
-  // Server to Client
-  'food-count-updated': (data: { foodItemId: string; remainingCount: number }) => void;
-  'new-order': (order: Order) => void;
-  'order-fulfilled': (orderId: string) => void;
-  'food-item-updated': (foodItem: FoodItem) => void;
-}
+
 
 // API Response types
 export interface ApiResponse<T = any> {

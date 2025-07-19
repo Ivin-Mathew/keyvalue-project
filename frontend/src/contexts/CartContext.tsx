@@ -40,7 +40,7 @@ interface CartProviderProps {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -193,9 +193,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         clearCart();
         toast.success('Order placed successfully!');
 
-        // Redirect to orders page to show the new order
+        // Trigger a page refresh to update food counts
         if (typeof window !== 'undefined') {
-          window.location.href = '/orders';
+          // Use a small delay to ensure the order is processed
+          setTimeout(() => {
+            window.location.href = '/orders';
+          }, 500);
         }
       } else {
         console.error('❌ Order creation failed:', response.error);

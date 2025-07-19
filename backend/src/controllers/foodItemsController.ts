@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { collections, firestoreHelpers } from '../services/firebase';
-import { socketEmitters } from '../services/socket';
 import { FoodItem, UpdateFoodItemRequest } from '../../../shared/types';
 
 export const getAllFoodItems = async (req: Request, res: Response) => {
@@ -148,8 +147,7 @@ export const createFoodItem = async (req: Request, res: Response) => {
       updatedAt: now.toDate()
     };
 
-    // Emit real-time update
-    socketEmitters.emitFoodItemUpdate(foodItem);
+
 
     res.status(201).json({
       success: true,
@@ -240,11 +238,7 @@ export const updateFoodItem = async (req: Request, res: Response) => {
       updatedAt: updatedData.updatedAt.toDate()
     };
 
-    // Emit real-time updates
-    socketEmitters.emitFoodItemUpdate(foodItem);
-    if (updates.remainingCount !== undefined) {
-      socketEmitters.emitFoodCountUpdate(id, updates.remainingCount);
-    }
+
 
     res.status(200).json({
       success: true,
