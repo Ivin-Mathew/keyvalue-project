@@ -45,23 +45,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (typeof window !== 'undefined') {
           const token = localStorage.getItem('token');
           if (token) {
+            console.log('🔐 Initializing auth with existing token');
             apiClient.setToken(token);
             const response = await apiClient.getProfile();
             if (response.success && response.data) {
+              console.log('✅ Auth initialization successful, user:', response.data.email);
               setUser(response.data);
             } else {
+              console.log('❌ Invalid token during initialization, clearing');
               // Invalid token, clear it
               localStorage.removeItem('token');
               apiClient.clearToken();
             }
+          } else {
+            console.log('🔐 No token found during initialization');
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to initialize auth:', error);
-        // Clear invalid token
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('token');
-          apiClient.clearToken();
+        // Only clear token if it's a 401 (unauthorized) error, not for other errors like network issues or 500 errors
+        const isUnauthorized = (error?.status === 401) ||
+                              (error instanceof Error && (
+                                error.message.includes('Invalid token') ||
+                                error.message.includes('Access denied')
+                              ));
+
+        if (isUnauthorized) {
+          console.log('🔐 Clearing invalid token due to authentication error');
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('token');
+            apiClient.clearToken();
+          }
+        } else {
+          console.log('🔐 Keeping token - error was not authentication related:', error?.status || error?.message);
         }
       } finally {
         setLoading(false);

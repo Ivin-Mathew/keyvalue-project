@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { FoodItem, CreateOrderRequest } from '../../../shared/types';
 import { apiClient } from '@/lib/api';
 import { useAuth } from './AuthContext';
@@ -41,6 +42,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { isAuthenticated, user } = useAuth();
+  const router = useRouter();
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -190,16 +192,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       console.log('📦 Checkout response:', response);
 
       if (response.success && response.data) {
+        console.log('✅ Order created successfully, user should remain logged in');
         clearCart();
         toast.success('Order placed successfully!');
 
-        // Trigger a page refresh to update food counts
-        if (typeof window !== 'undefined') {
-          // Use a small delay to ensure the order is processed
-          setTimeout(() => {
-            window.location.href = '/orders';
-          }, 500);
-        }
+        // Navigate to orders page without full page reload
+        setTimeout(() => {
+          console.log('🔄 Navigating to orders page...');
+          router.push('/orders');
+        }, 500);
       } else {
         console.error('❌ Order creation failed:', response.error);
         throw new Error(response.error || 'Failed to place order');
